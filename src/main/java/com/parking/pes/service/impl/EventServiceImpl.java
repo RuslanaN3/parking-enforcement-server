@@ -21,7 +21,7 @@ public class EventServiceImpl implements EventService {
     private double minAnprConfidenceValue;
 
     public EventServiceImpl(EventRepository eventRepository, ParkedVehicleRepository parkedVehicleRepository,
-                            PermitService permitService, @Value("${anpr.minConfidence:0.75}") double minAnprConfidenceValue) {
+                            PermitService permitService, @Value("${anpr.minConfidence}") double minAnprConfidenceValue) {
         this.eventRepository = eventRepository;
         this.parkedVehicleRepository = parkedVehicleRepository;
         this.minAnprConfidenceValue = minAnprConfidenceValue;
@@ -43,8 +43,13 @@ public class EventServiceImpl implements EventService {
         boolean hasPermission = permitService.checkPermission(licensePlate, eventDto.getLocation());
 
         if (!hasPermission) {
-            // generate postanova
+            // generate fine
+            parkedVehicle.setStatus(Status.UNPAID);
+        } else {
+            parkedVehicle.setStatus(Status.PAID);
         }
+        parkedVehicle.setLastTimeSpotted(eventDto.getTimestamp());
+
 
 
     }

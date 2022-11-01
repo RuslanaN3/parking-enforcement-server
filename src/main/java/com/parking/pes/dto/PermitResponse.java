@@ -17,7 +17,7 @@ public class PermitResponse {
         this.licensePlate = licensePlate;
     }
 
-    public boolean isHasPermit() {
+    public boolean hasPermit() {
         return hasPermit;
     }
 

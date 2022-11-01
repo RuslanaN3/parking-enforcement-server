@@ -23,7 +23,7 @@ public class PermitServiceImpl implements PermitService {
     }
 
     @Override
-    public boolean checkPermission(String licensePlate, Location location) {
+    public PermitResponse checkPermit(String licensePlate, Location location) {
 
         // some logic
         HttpHeaders headers = new HttpHeaders();
@@ -34,8 +34,10 @@ public class PermitServiceImpl implements PermitService {
         permitRequest.setLocation(location);
         HttpEntity<PermitRequest> request = new HttpEntity<>(permitRequest, headers);
 
-        PermitResponse permitResponse = restTemplate.exchange(permitServiceUrl, HttpMethod.POST, request, PermitResponse.class).getBody();
-
-        return false;
+        //PermitResponse permitResponse = restTemplate.exchange(permitServiceUrl, HttpMethod.POST, request, PermitResponse.class).getBody();
+        //permitResponse.setHasPermit(false);
+        PermitResponse permitResponse = new PermitResponse();
+        permitResponse.setHasPermit(false);
+        return permitResponse;
     }
 }

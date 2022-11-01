@@ -1,9 +1,10 @@
 package com.parking.pes.service;
 
 import com.parking.pes.dto.Location;
+import com.parking.pes.dto.PermitResponse;
 
 public interface PermitService {
 
-    boolean checkPermission(String licensePlate, Location location);
+    PermitResponse checkPermit(String licensePlate, Location location);
 
 }

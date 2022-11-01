@@ -1,18 +1,27 @@
 package com.parking.pes.service.impl;
 
+import static com.parking.pes.model.Status.*;
+
 import com.parking.pes.dto.EventDto;
+import com.parking.pes.dto.PermitResponse;
 import com.parking.pes.model.Event;
 import com.parking.pes.model.ParkedVehicle;
-import com.parking.pes.model.Status;
 import com.parking.pes.repository.EventRepository;
 import com.parking.pes.repository.ParkedVehicleRepository;
 import com.parking.pes.service.EventService;
 import com.parking.pes.service.PermitService;
+import java.time.Duration;
+import java.util.Date;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EventServiceImpl implements EventService {
+
+    private static final Logger logger = LogManager.getLogger(EventServiceImpl.class);
 
     private EventRepository eventRepository;
     private ParkedVehicleRepository parkedVehicleRepository;
@@ -21,7 +30,8 @@ public class EventServiceImpl implements EventService {
     private double minAnprConfidenceValue;
 
     public EventServiceImpl(EventRepository eventRepository, ParkedVehicleRepository parkedVehicleRepository,
-                            PermitService permitService, @Value("${anpr.minConfidence}") double minAnprConfidenceValue) {
+                            PermitService permitService,
+                            @Value("${anpr.minConfidence}") double minAnprConfidenceValue) {
         this.eventRepository = eventRepository;
         this.parkedVehicleRepository = parkedVehicleRepository;
         this.minAnprConfidenceValue = minAnprConfidenceValue;
@@ -29,29 +39,36 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public void processEvent(EventDto eventDto) {
+        logger.debug("Start event processing, received event {}", eventDto);
         saveEvent(eventDto);
 
         String licensePlate = eventDto.getVehicleData().getLicensePlate();
         ParkedVehicle parkedVehicle = parkedVehicleRepository.findByLicensePlate(licensePlate);
+
         if (parkedVehicle == null) {
             ParkedVehicle newParkedVehicle = createParkedVehicle(eventDto);
             parkedVehicleRepository.save(newParkedVehicle);
             return;
         }
-        //
-        boolean hasPermission = permitService.checkPermission(licensePlate, eventDto.getLocation());
 
-        if (!hasPermission) {
-            // generate fine
-            parkedVehicle.setStatus(Status.UNPAID);
-        } else {
-            parkedVehicle.setStatus(Status.PAID);
+        PermitResponse permitResponse = permitService.checkPermit(licensePlate, eventDto.getLocation());
+        if (permitResponse.hasPermit()) {
+            parkedVehicle.setStatus(PAID);
+        } else if (parkedVehicle.getStatus().equals(STARTED)) {
+            parkedVehicle.setStatus(UNPAID);
+            //generateFine(parkedVehicle);
+        } else if (parkedVehicle.getStatus().equals(UNPAID) &&
+            isHourBetweenDates(parkedVehicle.getLastTimeSpotted(), eventDto.getTimestamp())) {
+            //generateFine(parkedVehicle);
         }
         parkedVehicle.setLastTimeSpotted(eventDto.getTimestamp());
+        parkedVehicleRepository.save(parkedVehicle);
+    }
 
-
-
+    private boolean isHourBetweenDates(Date firstDate, Date secondDate) {
+        return secondDate.toInstant().isAfter(firstDate.toInstant().plus(Duration.ofHours(1)));
     }
 
     private void saveEvent(EventDto eventDto) {
@@ -70,7 +87,7 @@ public class EventServiceImpl implements EventService {
         parkedVehicle.setFirstTimeSpotted(eventDto.getTimestamp());
         parkedVehicle.setLicensePlate(eventDto.getVehicleData().getLicensePlate());
         if (eventDto.getVehicleData().getConfidence() < minAnprConfidenceValue) {
-            parkedVehicle.setStatus(Status.NOT_DETECTED);
+            parkedVehicle.setStatus(NOT_DETECTED);
         }
         return parkedVehicle;
     }

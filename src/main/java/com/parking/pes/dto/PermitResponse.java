@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PermitResponse {
-
     private String licensePlate;
-
     private boolean hasPermit;
 
     public String getLicensePlate() {

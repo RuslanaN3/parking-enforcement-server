@@ -9,6 +9,7 @@ import com.parking.pes.model.ParkedVehicle;
 import com.parking.pes.repository.EventRepository;
 import com.parking.pes.repository.ParkedVehicleRepository;
 import com.parking.pes.service.EventService;
+import com.parking.pes.service.FineService;
 import com.parking.pes.service.PermitService;
 import java.time.Duration;
 import java.util.Date;
@@ -26,24 +27,27 @@ public class EventServiceImpl implements EventService {
     private EventRepository eventRepository;
     private ParkedVehicleRepository parkedVehicleRepository;
     private PermitService permitService;
+    private FineService fineService;
 
     private double minAnprConfidenceValue;
 
     public EventServiceImpl(EventRepository eventRepository, ParkedVehicleRepository parkedVehicleRepository,
-                            PermitService permitService,
+                            PermitService permitService, FineService fineService,
                             @Value("${anpr.minConfidence}") double minAnprConfidenceValue) {
         this.eventRepository = eventRepository;
         this.parkedVehicleRepository = parkedVehicleRepository;
         this.minAnprConfidenceValue = minAnprConfidenceValue;
         this.permitService = permitService;
+        this.fineService = fineService;
     }
 
     @Override
     @Transactional
     public void processEvent(EventDto eventDto) {
-        logger.debug("Start event processing, received event {}", eventDto);
+        logger.info("Start event processing, received event : {}, {}", eventDto.getVehicleData().getLicensePlate(), eventDto.getCameraId());
         saveEvent(eventDto);
 
+        // looks like this logic should be split, processing of parked vehicle
         String licensePlate = eventDto.getVehicleData().getLicensePlate();
         ParkedVehicle parkedVehicle = parkedVehicleRepository.findByLicensePlate(licensePlate);
 
@@ -58,17 +62,17 @@ public class EventServiceImpl implements EventService {
             parkedVehicle.setStatus(PAID);
         } else if (parkedVehicle.getStatus().equals(STARTED)) {
             parkedVehicle.setStatus(UNPAID);
-            //generateFine(parkedVehicle);
-        } else if (parkedVehicle.getStatus().equals(UNPAID) &&
-            isHourBetweenDates(parkedVehicle.getLastTimeSpotted(), eventDto.getTimestamp())) {
-            //generateFine(parkedVehicle);
+            fineService.createFine(parkedVehicle);
+        } else if (parkedVehicle.getStatus().equals(UNPAID) && is24HoursBetweenDates(parkedVehicle.getLastTimeSpotted(), eventDto.getTimestamp())) {
+            fineService.createFine(parkedVehicle);
         }
         parkedVehicle.setLastTimeSpotted(eventDto.getTimestamp());
         parkedVehicleRepository.save(parkedVehicle);
     }
 
-    private boolean isHourBetweenDates(Date firstDate, Date secondDate) {
-        return secondDate.toInstant().isAfter(firstDate.toInstant().plus(Duration.ofHours(1)));
+
+    private boolean is24HoursBetweenDates(Date firstDate, Date secondDate) {
+        return secondDate.toInstant().isAfter(firstDate.toInstant().plus(Duration.ofHours(24)));
     }
 
     private void saveEvent(EventDto eventDto) {

@@ -19,6 +19,10 @@ public class ParkedVehicle {
     @Enumerated(EnumType.STRING)
     private Status status = Status.STARTED;
 
+    private String longitude;
+
+    private String latitude;
+
     public Integer getId() {
         return id;
     }
@@ -57,5 +61,21 @@ public class ParkedVehicle {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
     }
 }

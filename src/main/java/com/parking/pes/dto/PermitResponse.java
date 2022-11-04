@@ -1,11 +1,13 @@
 package com.parking.pes.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PermitResponse {
     private String licensePlate;
-    private boolean hasPermit;
+    @JsonProperty("hasPermit")
+    private Boolean hasPermit;
 
     public String getLicensePlate() {
         return licensePlate;
@@ -15,11 +17,11 @@ public class PermitResponse {
         this.licensePlate = licensePlate;
     }
 
-    public boolean hasPermit() {
+    public Boolean hasPermit() {
         return hasPermit;
     }
 
-    public void setHasPermit(boolean hasPermit) {
+    public void setHasPermit(Boolean hasPermit) {
         this.hasPermit = hasPermit;
     }
 }

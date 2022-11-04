@@ -13,6 +13,7 @@ import com.parking.pes.service.FineService;
 import com.parking.pes.service.PermitService;
 import java.time.Duration;
 import java.util.Date;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +48,6 @@ public class EventServiceImpl implements EventService {
         logger.info("Start event processing, received event : {}, {}", eventDto.getVehicleData().getLicensePlate(), eventDto.getCameraId());
         saveEvent(eventDto);
 
-        // looks like this logic should be split, processing of parked vehicle
         String licensePlate = eventDto.getVehicleData().getLicensePlate();
         ParkedVehicle parkedVehicle = parkedVehicleRepository.findByLicensePlate(licensePlate);
 
@@ -96,4 +96,7 @@ public class EventServiceImpl implements EventService {
         return parkedVehicle;
     }
 
+    public List<Event> findAll() {
+        return eventRepository.findAll();
+    }
 }

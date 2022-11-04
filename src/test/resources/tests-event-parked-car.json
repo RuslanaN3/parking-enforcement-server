@@ -1,0 +1,28 @@
+[
+  {
+    "timestamp": "1636617600000",
+    "vehicleData": {
+      "licensePlate": "ВС9096КЛ",
+      "image": "testImage",
+      "confidence": 0.85
+    },
+    "location": {
+      "longitude": "24.029716",
+      "latitude": "49.839684"
+    },
+    "cameraId": "camera1c"
+  },
+  {
+    "timestamp": "1636619100000",
+    "vehicleData": {
+      "licensePlate": "ВС9096КЛ",
+      "image": "testImage",
+      "confidence": 0.88
+    },
+    "location": {
+      "longitude": "24.029716",
+      "latitude": "49.839684"
+    },
+    "cameraId": "camera1c"
+  }
+]

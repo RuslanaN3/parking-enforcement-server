@@ -1,4 +1,37 @@
 package com.parking.pes.service.impl;
 
-public class ParkedVehicleServiceImpl {
+import com.parking.pes.model.Event;
+import com.parking.pes.model.ParkedVehicle;
+import com.parking.pes.model.Status;
+import com.parking.pes.repository.ParkedVehicleRepository;
+import com.parking.pes.service.ParkedVehicleService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class ParkedVehicleServiceImpl implements ParkedVehicleService {
+    private ParkedVehicleRepository parkedVehicleRepository;
+
+    public ParkedVehicleServiceImpl(ParkedVehicleRepository parkedVehicleRepository) {
+        this.parkedVehicleRepository = parkedVehicleRepository;
+    }
+
+    public boolean existsParkedVehicle(String licensePlate) {
+        return parkedVehicleRepository.existsParkedVehicleByLicensePlate(licensePlate);
+    }
+
+    public ParkedVehicle find(String licensePlate) {
+        return parkedVehicleRepository.findByLicensePlate(licensePlate);
+    }
+
+    public ParkedVehicle save(ParkedVehicle parkedVehicle) {
+        return parkedVehicleRepository.save(parkedVehicle);
+    }
+
+    public ParkedVehicle createFromEvent(Event event) {
+        ParkedVehicle parkedVehicle = new ParkedVehicle();
+        parkedVehicle.setFirstTimeSpotted(event.getTimestamp());
+        parkedVehicle.setLicensePlate(event.getLicensePlate());
+        return parkedVehicleRepository.save(parkedVehicle);
+    }
 }

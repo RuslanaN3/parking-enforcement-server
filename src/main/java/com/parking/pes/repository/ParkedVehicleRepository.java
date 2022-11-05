@@ -9,4 +9,5 @@ public interface ParkedVehicleRepository extends JpaRepository<ParkedVehicle, In
 
     ParkedVehicle findByLicensePlate(String licensePlate);
 
+    boolean existsParkedVehicleByLicensePlate(String licensePlate);
 }

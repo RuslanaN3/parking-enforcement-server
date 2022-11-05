@@ -51,7 +51,7 @@ class EventServiceTest {
         String licensePlate = eventDto.getVehicleData().getLicensePlate();
         when(parkedVehicleRepository.findByLicensePlate(licensePlate)).thenReturn(null);
 
-        eventService.processEvent(eventDto);
+        eventService.handleEvent(eventDto);
 
         verify(eventRepository).save(any(Event.class));
         verify(parkedVehicleRepository).findByLicensePlate(licensePlate);
@@ -74,7 +74,7 @@ class EventServiceTest {
             .thenReturn(parkedVehicle);
         when(permitService.checkPermit(eq(licensePlate), any())).thenReturn(new PermitResponse(true));
 
-        eventService.processEvent(eventDto);
+        eventService.handleEvent(eventDto);
 
         verify(eventRepository).save(any(Event.class));
         verify(parkedVehicleRepository).findByLicensePlate(licensePlate);

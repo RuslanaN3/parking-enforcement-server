@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface EventService {
     List<Event> findAll();
-    void processEvent(EventDto eventDto);
+
+    void handleEvent(EventDto eventDto);
 }

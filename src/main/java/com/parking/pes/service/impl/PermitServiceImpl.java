@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class PermitServiceImpl implements PermitService {
-
     private RestTemplate restTemplate;
     private String permitServiceUrl;
 
@@ -24,14 +23,9 @@ public class PermitServiceImpl implements PermitService {
 
     @Override
     public PermitResponse checkPermit(String licensePlate, Location location) {
-
-        // some logic
+        PermitRequest permitRequest = createRequest(licensePlate, location);
         HttpHeaders headers = new HttpHeaders();
         headers.set("apiKey", "token");
-
-        PermitRequest permitRequest = new PermitRequest();
-        permitRequest.setLicensePlate(licensePlate);
-        permitRequest.setLocation(location);
         HttpEntity<PermitRequest> request = new HttpEntity<>(permitRequest, headers);
 
         PermitResponse permitResponse = restTemplate.exchange(permitServiceUrl, HttpMethod.POST, request, PermitResponse.class).getBody();
@@ -39,5 +33,12 @@ public class PermitServiceImpl implements PermitService {
         //PermitResponse permitResponse = new PermitResponse();
         //permitResponse.setHasPermit(false);
         return permitResponse;
+    }
+
+    private PermitRequest createRequest(String licensePlate, Location location) {
+        PermitRequest permitRequest = new PermitRequest();
+        permitRequest.setLicensePlate(licensePlate);
+        permitRequest.setLocation(location);
+        return permitRequest;
     }
 }

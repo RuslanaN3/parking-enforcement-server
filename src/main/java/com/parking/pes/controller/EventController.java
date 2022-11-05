@@ -19,8 +19,8 @@ public class EventController {
     }
 
     @PostMapping
-    public EventDto processEvent(@Valid @RequestBody EventDto eventDto) {
-        eventService.processEvent(eventDto);
+    public EventDto handleEvent(@Valid @RequestBody EventDto eventDto) {
+        eventService.handleEvent(eventDto);
         return eventDto;
     }
 

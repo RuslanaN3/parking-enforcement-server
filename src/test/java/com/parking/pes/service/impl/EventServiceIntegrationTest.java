@@ -76,7 +76,7 @@ public class EventServiceIntegrationTest {
             .andExpect(method(HttpMethod.POST))
             .andRespond(withSuccess(objectMapper.writeValueAsString(permitResponse), MediaType.APPLICATION_JSON));
 
-        eventDtos.forEach(eventDto -> eventService.processEvent(eventDto));
+        eventDtos.forEach(eventDto -> eventService.handleEvent(eventDto));
 
         List<Event> events = eventService.findAll();
         assertNotNull(events);
@@ -116,7 +116,7 @@ public class EventServiceIntegrationTest {
             .andExpect(method(HttpMethod.POST))
             .andRespond(withSuccess());
 
-        eventDtos.forEach(eventDto -> eventService.processEvent(eventDto));
+        eventDtos.forEach(eventDto -> eventService.handleEvent(eventDto));
 
         List<Event> events = eventService.findAll();
         assertNotNull(events);

@@ -30,7 +30,7 @@ public class EventServiceImpl implements EventService {
     private PermitService permitService;
     private FineService fineService;
 
-    private double minAnprConfidenceValue;
+    private Double minAnprConfidenceValue;
 
     public EventServiceImpl(EventRepository eventRepository, ParkedVehicleRepository parkedVehicleRepository,
                             PermitService permitService, FineService fineService,

@@ -9,6 +9,13 @@ public class PermitResponse {
     @JsonProperty("hasPermit")
     private Boolean hasPermit;
 
+    public PermitResponse() {
+    }
+
+    public PermitResponse(Boolean hasPermit) {
+        this.hasPermit = hasPermit;
+    }
+
     public String getLicensePlate() {
         return licensePlate;
     }

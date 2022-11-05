@@ -1,0 +1,67 @@
+[
+  {
+    "timestamp": "1636617600000",
+    "vehicleData": {
+      "licensePlate": "ВС9096КЛ",
+      "image": "testImage",
+      "confidence": 0.85
+    },
+    "location": {
+      "longitude": "24.029716",
+      "latitude": "49.839684"
+    },
+    "cameraId": "camera1c"
+  },
+  {
+    "timestamp": "1636617900000",
+    "vehicleData": {
+      "licensePlate": "АО5005КЛ",
+      "image": "testImage",
+      "confidence": 0.90
+    },
+    "location": {
+      "longitude": "24.031578",
+      "latitude": "49.838377"
+    },
+    "cameraId": "camera1c"
+  },
+  {
+    "timestamp": "1636617960000",
+    "vehicleData": {
+      "licensePlate": "АА3456НВ",
+      "image": "testImage",
+      "confidence": 0.96
+    },
+    "location": {
+      "longitude": "24.035578",
+      "latitude": "49.838387"
+    },
+    "cameraId": "camera1c"
+  },
+  {
+    "timestamp": "1636619100000",
+    "vehicleData": {
+      "licensePlate": "ВС9096КЛ",
+      "image": "testImage",
+      "confidence": 0.88
+    },
+    "location": {
+      "longitude": "24.029716",
+      "latitude": "49.839684"
+    },
+    "cameraId": "camera1c"
+  },
+  {
+    "timestamp": "1636619280000",
+    "vehicleData": {
+      "licensePlate": "АО5005КЛ",
+      "image": "testImage",
+      "confidence": 0.91
+    },
+    "location": {
+      "longitude": "24.029716",
+      "latitude": "49.839684"
+    },
+    "cameraId": "camera1c"
+  }
+]

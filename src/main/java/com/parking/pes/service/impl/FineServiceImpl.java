@@ -34,7 +34,7 @@ public class FineServiceImpl implements FineService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("apiKey", "token");
 
-        //HttpEntity<CreateFineRequest> request = new HttpEntity<>(createFineRequest, headers);
-        //restTemplate.exchange(fineGenerationServiceUrl, HttpMethod.POST, request, Map.class).getBody();
+        HttpEntity<CreateFineRequest> request = new HttpEntity<>(createFineRequest, headers);
+        restTemplate.exchange(fineGenerationServiceUrl, HttpMethod.POST, request, Map.class).getBody();
     }
 }

@@ -37,6 +37,7 @@ import org.springframework.web.client.RestTemplate;
 @AutoConfigureMockMvc
 public class EventServiceIntegrationTest {
     private static final String PERMIT_SERVICE_URL = "https://permissionservice.com";
+    private static final String FINE_SERVICE_URL = "https://fineservice.com";
 
     @Autowired
     private MockMvc mockMvc;
@@ -63,8 +64,8 @@ public class EventServiceIntegrationTest {
     }
 
     @Test
-    void testProcessEventsWhenMultipleParkedCars(
-        @Value("classpath:tests-event-multiple-cars.json") Resource eventsResource) throws Exception {
+    void testProcessEventsWhenPaidParkedCars(
+        @Value("classpath:test-events-paid-parking.json") Resource eventsResource) throws Exception {
         List<EventDto> eventDtos = objectMapper.readValue(eventsResource.getInputStream(), new TypeReference<>() {
         });
 
@@ -96,6 +97,45 @@ public class EventServiceIntegrationTest {
         ParkedVehicle thirdParkedCar = parkedVehicleRepository.findByLicensePlate("АА3456НВ");
         assertEquals(eventDtos.get(2).getTimestamp(), thirdParkedCar.getFirstTimeSpotted());
         assertEquals(Status.STARTED, thirdParkedCar.getStatus());
+    }
 
+    @Test
+    void testProcessEventsWhenUnpaidParkedCars(
+        @Value("classpath:test-events-unpaid-parking.json") Resource eventsResource) throws Exception {
+        List<EventDto> eventDtos = objectMapper.readValue(eventsResource.getInputStream(), new TypeReference<>() {
+        });
+
+        PermitResponse permitResponse = new PermitResponse();
+        permitResponse.setHasPermit(false);
+        mockServer.expect(ExpectedCount.times(2),
+            requestTo(PERMIT_SERVICE_URL))
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(objectMapper.writeValueAsString(permitResponse), MediaType.APPLICATION_JSON));
+        mockServer.expect(ExpectedCount.times(2),
+            requestTo(FINE_SERVICE_URL))
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess());
+
+        eventDtos.forEach(eventDto -> eventService.processEvent(eventDto));
+
+        List<Event> events = eventService.findAll();
+        assertNotNull(events);
+        assertEquals(5, events.size());
+
+        List<ParkedVehicle> parkedVehicles = parkedVehicleRepository.findAll();
+        assertNotNull(parkedVehicles);
+        assertEquals(3, parkedVehicles.size());
+
+        ParkedVehicle firstParkedCar = parkedVehicleRepository.findByLicensePlate("ВС9096КЛ");
+        assertEquals(eventDtos.get(0).getTimestamp(), firstParkedCar.getFirstTimeSpotted());
+        assertEquals(Status.UNPAID, firstParkedCar.getStatus());
+
+        ParkedVehicle secondParkedCar = parkedVehicleRepository.findByLicensePlate("АО5005КЛ");
+        assertEquals(eventDtos.get(1).getTimestamp(), secondParkedCar.getFirstTimeSpotted());
+        assertEquals(Status.UNPAID, secondParkedCar.getStatus());
+
+        ParkedVehicle thirdParkedCar = parkedVehicleRepository.findByLicensePlate("АА3456НВ");
+        assertEquals(eventDtos.get(2).getTimestamp(), thirdParkedCar.getFirstTimeSpotted());
+        assertEquals(Status.STARTED, thirdParkedCar.getStatus());
     }
 }

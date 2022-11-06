@@ -1,6 +1,6 @@
 package com.parking.pes.model;
 
-import java.util.Date;
+import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,7 +13,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    private Date timestamp;
+    private Instant timestamp;
 
     private String longitude;
 
@@ -31,11 +31,11 @@ public class Event {
         this.id = id;
     }
 
-    public Date getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 

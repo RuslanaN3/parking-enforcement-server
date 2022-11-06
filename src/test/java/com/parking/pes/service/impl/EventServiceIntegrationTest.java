@@ -6,6 +6,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.parking.pes.dto.EventDto;
 import com.parking.pes.dto.PermitResponse;
 import com.parking.pes.model.Event;
@@ -18,7 +19,6 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,13 +26,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class EventServiceIntegrationTest {
@@ -55,6 +53,7 @@ public class EventServiceIntegrationTest {
     @BeforeEach
     void setUp() {
         mockServer = MockRestServiceServer.createServer(restTemplate);
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @AfterEach
@@ -100,18 +99,18 @@ public class EventServiceIntegrationTest {
     }
 
     @Test
-    void testProcessEventsWhenUnpaidParkedCars(
+    void testProcessEventsWhenUnpaidParkedCarsAndSecondlyFined(
         @Value("classpath:test-events-unpaid-parking.json") Resource eventsResource) throws Exception {
         List<EventDto> eventDtos = objectMapper.readValue(eventsResource.getInputStream(), new TypeReference<>() {
         });
 
         PermitResponse permitResponse = new PermitResponse();
         permitResponse.setHasPermit(false);
-        mockServer.expect(ExpectedCount.times(2),
+        mockServer.expect(ExpectedCount.times(5),
             requestTo(PERMIT_SERVICE_URL))
             .andExpect(method(HttpMethod.POST))
             .andRespond(withSuccess(objectMapper.writeValueAsString(permitResponse), MediaType.APPLICATION_JSON));
-        mockServer.expect(ExpectedCount.times(2),
+        mockServer.expect(ExpectedCount.times(4),
             requestTo(FINE_SERVICE_URL))
             .andExpect(method(HttpMethod.POST))
             .andRespond(withSuccess());
@@ -120,7 +119,7 @@ public class EventServiceIntegrationTest {
 
         List<Event> events = eventService.findAll();
         assertNotNull(events);
-        assertEquals(5, events.size());
+        assertEquals(8, events.size());
 
         List<ParkedVehicle> parkedVehicles = parkedVehicleRepository.findAll();
         assertNotNull(parkedVehicles);
@@ -136,6 +135,6 @@ public class EventServiceIntegrationTest {
 
         ParkedVehicle thirdParkedCar = parkedVehicleRepository.findByLicensePlate("АА3456НВ");
         assertEquals(eventDtos.get(2).getTimestamp(), thirdParkedCar.getFirstTimeSpotted());
-        assertEquals(Status.STARTED, thirdParkedCar.getStatus());
+        assertEquals(Status.UNPAID, thirdParkedCar.getStatus());
     }
 }

@@ -1,6 +1,6 @@
 package com.parking.pes.model;
 
-import java.util.Date;
+import java.time.Instant;
 import javax.persistence.*;
 
 @Entity
@@ -12,9 +12,9 @@ public class ParkedVehicle {
 
     private String licensePlate;
 
-    private Date firstTimeSpotted;
+    private Instant firstTimeSpotted;
 
-    private Date lastTimeSpotted;
+    private Instant lastTimeSpotted;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.STARTED;
@@ -39,19 +39,19 @@ public class ParkedVehicle {
         this.licensePlate = licensePlate;
     }
 
-    public Date getFirstTimeSpotted() {
+    public Instant getFirstTimeSpotted() {
         return firstTimeSpotted;
     }
 
-    public void setFirstTimeSpotted(Date firstTimeSpotted) {
+    public void setFirstTimeSpotted(Instant firstTimeSpotted) {
         this.firstTimeSpotted = firstTimeSpotted;
     }
 
-    public Date getLastTimeSpotted() {
+    public Instant getLastTimeSpotted() {
         return lastTimeSpotted;
     }
 
-    public void setLastTimeSpotted(Date lastTimeSpotted) {
+    public void setLastTimeSpotted(Instant lastTimeSpotted) {
         this.lastTimeSpotted = lastTimeSpotted;
     }
 

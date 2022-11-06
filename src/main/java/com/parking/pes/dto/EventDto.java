@@ -1,10 +1,10 @@
 package com.parking.pes.dto;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class EventDto {
     private Location location;
-    private Date timestamp;
+    private Instant timestamp;
     private VehicleData vehicleData;
     private String cameraId;
 
@@ -16,11 +16,11 @@ public class EventDto {
         this.location = location;
     }
 
-    public Date getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 

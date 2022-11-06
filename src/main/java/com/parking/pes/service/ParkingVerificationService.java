@@ -21,23 +21,9 @@ public class ParkingVerificationService {
 
     public Status verify(ParkedVehicle parkedVehicle, Event newEvent) {
         PermitResponse permitResponse = permitService.checkPermit(parkedVehicle.getLicensePlate(), new Location());
-
-        //if (permitResponse.hasPermit()) {
-        //    return PAID;
-        //} else if (parkedVehicle.getStatus().equals(STARTED)) {
-        //    fineService.createFine(parkedVehicle);
-        //    return UNPAID;
-        //}
-        //
-        //
-        //if (parkedVehicle.getStatus().equals(UNPAID) &&
-        //    is24HoursBetweenDates(parkedVehicle.getLastTimeSpotted(), newEvent.getTimestamp())) {
-        //    fineService.createFine(parkedVehicle);
-        //}
-        return PAID;
+        if (permitResponse.hasPermit()) {
+            return PAID;
+        } else return UNPAID;
     }
 
-    private boolean is24HoursBetweenDates(Date firstDate, Date secondDate) {
-        return secondDate.toInstant().isAfter(firstDate.toInstant().plus(Duration.ofHours(24)));
-    }
 }

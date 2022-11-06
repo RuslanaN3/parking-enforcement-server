@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "1636617600000",
+    "timestamp": "2022-11-11T10:00:00.00Z",
     "vehicleData": {
       "licensePlate": "ВС9096КЛ",
       "image": "testImage",
@@ -13,7 +13,7 @@
     "cameraId": "camera1c"
   },
   {
-    "timestamp": "1636617900000",
+    "timestamp": "2022-11-11T10:05:00.00Z",
     "vehicleData": {
       "licensePlate": "АО5005КЛ",
       "image": "testImage",
@@ -26,7 +26,7 @@
     "cameraId": "camera1c"
   },
   {
-    "timestamp": "1636617960000",
+    "timestamp": "2022-11-11T10:12:00.00Z",
     "vehicleData": {
       "licensePlate": "АА3456НВ",
       "image": "testImage",
@@ -39,7 +39,7 @@
     "cameraId": "camera1c"
   },
   {
-    "timestamp": "1636619100000",
+    "timestamp": "2022-11-11T10:23:00.00Z",
     "vehicleData": {
       "licensePlate": "ВС9096КЛ",
       "image": "testImage",
@@ -52,7 +52,7 @@
     "cameraId": "camera1c"
   },
   {
-    "timestamp": "1636619280000",
+    "timestamp": "2022-11-11T10:25:00.00Z",
     "vehicleData": {
       "licensePlate": "АО5005КЛ",
       "image": "testImage",

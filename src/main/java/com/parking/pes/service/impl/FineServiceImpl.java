@@ -23,7 +23,7 @@ public class FineServiceImpl implements FineService {
     }
 
     @Override
-    public void createFine(ParkedVehicle parkedVehicle) {
+    public void reportViolation(ParkedVehicle parkedVehicle) {
        CreateFineRequest createFineRequest = new CreateFineRequest();
        createFineRequest.setLicensePlate(parkedVehicle.getLicensePlate());
 
@@ -35,6 +35,6 @@ public class FineServiceImpl implements FineService {
         headers.set("apiKey", "token");
 
         HttpEntity<CreateFineRequest> request = new HttpEntity<>(createFineRequest, headers);
-        restTemplate.exchange(fineGenerationServiceUrl, HttpMethod.POST, request, Map.class).getBody();
+        //restTemplate.exchange(fineGenerationServiceUrl, HttpMethod.POST, request, Map.class).getBody();
     }
 }

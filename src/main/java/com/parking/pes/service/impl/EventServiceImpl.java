@@ -7,30 +7,25 @@ import com.parking.pes.service.*;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EventServiceImpl implements EventService {
-
     private static final Logger logger = LogManager.getLogger(EventServiceImpl.class);
 
     private ParkingEventProcessingService parkingEventProcessingService;
     private EventRepository eventRepository;
-    private Double minAnprConfidenceValue;
 
-    public EventServiceImpl(EventRepository eventRepository,
-                            ParkingEventProcessingService parkingEventProcessingService,
-                            @Value("${anpr.minConfidence}") double minAnprConfidenceValue) {
-        this.eventRepository = eventRepository;
-        this.minAnprConfidenceValue = minAnprConfidenceValue;
+    public EventServiceImpl(ParkingEventProcessingService parkingEventProcessingService,
+                            EventRepository eventRepository) {
         this.parkingEventProcessingService = parkingEventProcessingService;
+        this.eventRepository = eventRepository;
     }
 
     @Override
     public void handleEvent(EventDto eventDto) {
-        logger.info("Start event processing, received event : {}, {}", eventDto.getVehicleData().getLicensePlate(),
-            eventDto.getCameraId());
+        logger.info("Start event processing, received event for license plate : {} at {}", eventDto.getVehicleData().getLicensePlate(),
+            eventDto.getTimestamp());
         Event event = createEvent(eventDto);
         saveEvent(event);
         parkingEventProcessingService.processEvent(event);
@@ -46,6 +41,7 @@ public class EventServiceImpl implements EventService {
         event.setLongitude(eventDto.getLocation().getLongitude());
         event.setLatitude(eventDto.getLocation().getLatitude());
         event.setLicensePlate(eventDto.getVehicleData().getLicensePlate());
+        event.setLicencePlateConfidence(eventDto.getVehicleData().getConfidence());
         event.setCameraId(eventDto.getCameraId());
         return event;
     }

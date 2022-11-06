@@ -29,11 +29,11 @@ public class PermitServiceImpl implements PermitService {
         HttpEntity<PermitRequest> request = new HttpEntity<>(permitRequest, headers);
 
 
-        PermitResponse permitResponse =
-            restTemplate.exchange(permitServiceUrl, HttpMethod.POST, request, PermitResponse.class).getBody();
+        //PermitResponse permitResponse =
+        //    restTemplate.exchange(permitServiceUrl, HttpMethod.POST, request, PermitResponse.class).getBody();
         //permitResponse.setHasPermit(false);
-        //PermitResponse permitResponse = new PermitResponse();
-        //permitResponse.setHasPermit(false);
+        PermitResponse permitResponse = new PermitResponse();
+        permitResponse.setHasPermit(false);
 
         return permitResponse;
     }

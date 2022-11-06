@@ -8,7 +8,6 @@ import javax.persistence.Id;
 
 @Entity
 public class Event {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -20,6 +19,8 @@ public class Event {
     private String latitude;
 
     private String licensePlate;
+
+    private Double licencePlateConfidence;
 
     private String cameraId;
 
@@ -61,6 +62,14 @@ public class Event {
 
     public void setLicensePlate(String licensePlate) {
         this.licensePlate = licensePlate;
+    }
+
+    public Double getLicencePlateConfidence() {
+        return licencePlateConfidence;
+    }
+
+    public void setLicencePlateConfidence(Double licencePlateConfidence) {
+        this.licencePlateConfidence = licencePlateConfidence;
     }
 
     public String getCameraId() {

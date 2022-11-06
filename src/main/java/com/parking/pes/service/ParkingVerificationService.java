@@ -19,6 +19,7 @@ public class ParkingVerificationService {
         this.permitService = permitService;
     }
 
+    // check for related location logic
     public Status verify(ParkedVehicle parkedVehicle, Event newEvent) {
         PermitResponse permitResponse = permitService.checkPermit(parkedVehicle.getLicensePlate(), new Location());
         if (permitResponse.hasPermit()) {

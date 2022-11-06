@@ -24,14 +24,17 @@ public class ParkedVehicleServiceImpl implements ParkedVehicleService {
         return parkedVehicleRepository.findByLicensePlate(licensePlate);
     }
 
-    public ParkedVehicle save(ParkedVehicle parkedVehicle) {
-        return parkedVehicleRepository.save(parkedVehicle);
+    public void save(ParkedVehicle parkedVehicle) {
+        parkedVehicleRepository.save(parkedVehicle);
     }
 
-    public ParkedVehicle createFromEvent(Event event) {
+    public ParkedVehicle createFromEvent(Event event, Double minLicensePlateConfidence) {
         ParkedVehicle parkedVehicle = new ParkedVehicle();
         parkedVehicle.setFirstTimeSpotted(event.getTimestamp());
         parkedVehicle.setLicensePlate(event.getLicensePlate());
+        if (event.getLicencePlateConfidence() < minLicensePlateConfidence) {
+            parkedVehicle.setStatus(Status.LOW_CONFIDENCE);
+        }
         return parkedVehicleRepository.save(parkedVehicle);
     }
 }

@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import org.locationtech.jts.geom.Point;
 
 @Entity
 public class Event {
@@ -14,15 +15,15 @@ public class Event {
 
     private Instant timestamp;
 
-    private String longitude;
-
-    private String latitude;
+    private Point point;
 
     private String licensePlate;
 
     private Double licencePlateConfidence;
 
     private String cameraId;
+
+    private String cameraPosition;
 
     public Integer getId() {
         return id;
@@ -40,20 +41,12 @@ public class Event {
         this.timestamp = timestamp;
     }
 
-    public String getLongitude() {
-        return longitude;
+    public Point getPoint() {
+        return point;
     }
 
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
+    public void setPoint(Point point) {
+        this.point = point;
     }
 
     public String getLicensePlate() {
@@ -78,5 +71,13 @@ public class Event {
 
     public void setCameraId(String cameraId) {
         this.cameraId = cameraId;
+    }
+
+    public String getCameraPosition() {
+        return cameraPosition;
+    }
+
+    public void setCameraPosition(String cameraPosition) {
+        this.cameraPosition = cameraPosition;
     }
 }

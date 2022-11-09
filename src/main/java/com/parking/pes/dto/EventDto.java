@@ -1,12 +1,15 @@
 package com.parking.pes.dto;
 
+import com.parking.pes.validator.ParkingZone;
 import java.time.Instant;
 
 public class EventDto {
+    @ParkingZone
     private Location location;
     private Instant timestamp;
     private VehicleData vehicleData;
     private String cameraId;
+    private String cameraPosition;
 
     public Location getLocation() {
         return location;
@@ -38,5 +41,13 @@ public class EventDto {
 
     public void setCameraId(String cameraId) {
         this.cameraId = cameraId;
+    }
+
+    public String getCameraPosition() {
+        return cameraPosition;
+    }
+
+    public void setCameraPosition(String cameraPosition) {
+        this.cameraPosition = cameraPosition;
     }
 }

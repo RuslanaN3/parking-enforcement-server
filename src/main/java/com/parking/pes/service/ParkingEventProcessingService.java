@@ -5,6 +5,7 @@ import static com.parking.pes.model.Status.*;
 import com.parking.pes.model.Event;
 import com.parking.pes.model.ParkedVehicle;
 import com.parking.pes.model.Status;
+import com.parking.pes.repository.ParkingPolygonRepository;
 import java.time.Duration;
 import java.time.Instant;
 import org.apache.logging.log4j.LogManager;

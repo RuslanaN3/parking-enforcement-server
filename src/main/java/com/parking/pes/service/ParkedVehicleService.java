@@ -6,7 +6,7 @@ import com.parking.pes.model.ParkedVehicle;
 public interface ParkedVehicleService {
     boolean existsParkedVehicle(String licensePlate);
 
-    ParkedVehicle createFromEvent(Event event, Double minLicensePlateConfidence);
+    ParkedVehicle createFromEvent(Event event);
 
     ParkedVehicle find(String licencePlate);
 

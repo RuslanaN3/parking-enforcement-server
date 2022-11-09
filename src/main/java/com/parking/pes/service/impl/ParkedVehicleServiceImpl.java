@@ -28,13 +28,10 @@ public class ParkedVehicleServiceImpl implements ParkedVehicleService {
         parkedVehicleRepository.save(parkedVehicle);
     }
 
-    public ParkedVehicle createFromEvent(Event event, Double minLicensePlateConfidence) {
+    public ParkedVehicle createFromEvent(Event event) {
         ParkedVehicle parkedVehicle = new ParkedVehicle();
         parkedVehicle.setFirstTimeSpotted(event.getTimestamp());
         parkedVehicle.setLicensePlate(event.getLicensePlate());
-        if (event.getLicencePlateConfidence() < minLicensePlateConfidence) {
-            parkedVehicle.setStatus(Status.LOW_CONFIDENCE);
-        }
         return parkedVehicleRepository.save(parkedVehicle);
     }
 }

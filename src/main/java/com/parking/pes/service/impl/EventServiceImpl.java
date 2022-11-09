@@ -26,11 +26,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void handleEvent(EventDto eventDto) {
-        logger.info("Start event processing, received event for license plate : {} at {}",
+        logger.info("Start event processing, received event with license plate : {} at {}",
             eventDto.getVehicleData().getLicensePlate(),
             eventDto.getTimestamp());
         // filter out events with not detected numbers???
-
         Event event = createEvent(eventDto);
         saveEvent(event);
         parkingEventProcessingService.processEvent(event);

@@ -33,23 +33,26 @@ public class ParkingEventProcessingService {
     }
 
     public void processEvent(Event event) {
-        ParkedVehicle parkedVehicle = parkedVehicleService.find(event.getLicensePlate());
-        if (parkedVehicle == null) {
-            logger.info("Parked vehicle not found, creating new for {}", event.getLicensePlate());
-            parkedVehicleService.createFromEvent(event, minLicensePlateConfidence);
+        if (event.getLicencePlateConfidence() < minLicensePlateConfidence) {
+            logger.info("Low confidence value {} for license plate: {}", event.getLicencePlateConfidence(), event.getLicensePlate());
             return;
         }
 
-        if (event.getLicencePlateConfidence() < minLicensePlateConfidence) {
-            parkedVehicle.setStatus(LOW_CONFIDENCE);
-            //generate task
-        } else {
-            Status verificationResultStatus = parkingVerificationService.verify(parkedVehicle, event);
-            if (verificationResultStatus == UNPAID && (parkedVehicle.getStatus() == STARTED || isFined(parkedVehicle, event.getTimestamp()))) {
-                fineService.reportViolation(parkedVehicle);
-            }
-            parkedVehicle.setStatus(verificationResultStatus);
+        ParkedVehicle parkedVehicle = parkedVehicleService.find(event.getLicensePlate());
+        if (parkedVehicle == null) {
+            logger.info("Parked vehicle not found, creating new for {}", event.getLicensePlate());
+            parkedVehicleService.createFromEvent(event);
+            return;
         }
+
+
+        Status verificationResultStatus = parkingVerificationService.verify(parkedVehicle, event);
+        if (verificationResultStatus == UNPAID &&
+            (parkedVehicle.getStatus() == STARTED || isFined(parkedVehicle, event.getTimestamp()))) {
+            fineService.reportViolation(parkedVehicle);
+        }
+        parkedVehicle.setStatus(verificationResultStatus);
+
         parkedVehicle.setLastTimeSpotted(event.getTimestamp());
         parkedVehicleService.save(parkedVehicle);
     }

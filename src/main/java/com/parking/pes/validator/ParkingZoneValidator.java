@@ -19,6 +19,6 @@ public class ParkingZoneValidator implements ConstraintValidator<ParkingZone, Lo
     @Override
     public boolean isValid(Location location, ConstraintValidatorContext context) {
         return location != null &&
-            parkingPolygonRepository.findParkingPolygonByPoint(location.getLongitude(), location.getLatitude()) != null;
+            parkingPolygonRepository.findParkingPolygonByPoint(location.getLatitude(), location.getLongitude()) != null;
     }
 }

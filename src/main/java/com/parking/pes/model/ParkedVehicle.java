@@ -23,6 +23,10 @@ public class ParkedVehicle {
 
     private String latitude;
 
+    private Integer parkingAreaId;
+
+    private Boolean deactivated = false;
+
     public Integer getId() {
         return id;
     }
@@ -77,5 +81,21 @@ public class ParkedVehicle {
 
     public void setLatitude(String latitude) {
         this.latitude = latitude;
+    }
+
+    public Integer getParkingAreaId() {
+        return parkingAreaId;
+    }
+
+    public void setParkingAreaId(Integer parkingAreaId) {
+        this.parkingAreaId = parkingAreaId;
+    }
+
+    public Boolean getDeactivated() {
+        return deactivated;
+    }
+
+    public void setDeactivated(Boolean deactivated) {
+        this.deactivated = deactivated;
     }
 }

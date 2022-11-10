@@ -1,8 +1,8 @@
 package com.parking.pes.controller;
 
 import com.parking.pes.dto.EventDto;
-import com.parking.pes.model.ParkingPolygon;
-import com.parking.pes.repository.ParkingPolygonRepository;
+import com.parking.pes.model.ParkingArea;
+import com.parking.pes.repository.ParkingAreaRepository;
 import com.parking.pes.service.EventService;
 import javax.validation.Valid;
 import org.locationtech.jts.geom.*;
@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class EventController {
 
     private EventService eventService;
-    private ParkingPolygonRepository parkingPolygonRepository;
+    private ParkingAreaRepository parkingAreaRepository;
 
     public EventController(EventService eventService,
-                           ParkingPolygonRepository parkingPolygonRepository) {
+                           ParkingAreaRepository parkingAreaRepository) {
         this.eventService = eventService;
-        this.parkingPolygonRepository = parkingPolygonRepository;
+        this.parkingAreaRepository = parkingAreaRepository;
     }
 
     @PostMapping
@@ -31,8 +31,8 @@ public class EventController {
     }
 
     @GetMapping("/{lat}/{lon}")
-    public ParkingPolygon getPointEntity(@PathVariable Double lat, @PathVariable Double lon) {
-        //List<ParkingPolygon> pointEntities = pointEntityRepository.findAll();
+    public ParkingArea getPointEntity(@PathVariable Double lat, @PathVariable Double lon) {
+        //List<ParkingArea> pointEntities = pointEntityRepository.findAll();
         //Coordinate[] coordinates = new Coordinate[5];
         //coordinates[0] = new Coordinate(1, 2); // Starting point
         //coordinates[1] = new Coordinate(2, 20);
@@ -41,13 +41,13 @@ public class EventController {
         //coordinates[4] = new Coordinate(1, 2); // Ending point
         //LinearRing linear = new GeometryFactory().createLinearRing(coordinates);
         //Polygon poly = new Polygon(linear, null, new GeometryFactory());
-        //ParkingPolygon parkingPolygon = new ParkingPolygon();
+        //ParkingArea parkingPolygon = new ParkingArea();
         //parkingPolygon.setId(5);
         //parkingPolygon.setMpolygon(poly);
         //pointEntityRepository.save(parkingPolygon);
 
         Point p = new GeometryFactory().createPoint(new Coordinate(lat, lon));
-        return parkingPolygonRepository.findParkingPolygonByPoint(lat, lon);
+        return parkingAreaRepository.findParkingAreaByPoint(lat, lon);
     }
 
 }

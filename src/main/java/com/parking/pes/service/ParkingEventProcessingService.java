@@ -4,10 +4,11 @@ import static com.parking.pes.model.Status.*;
 
 import com.parking.pes.model.Event;
 import com.parking.pes.model.ParkedVehicle;
+import com.parking.pes.model.ParkingArea;
 import com.parking.pes.model.Status;
-import com.parking.pes.repository.ParkingPolygonRepository;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,15 +22,18 @@ public class ParkingEventProcessingService {
     private ParkingVerificationService parkingVerificationService;
     private FineService fineService;
     private Double minLicensePlateConfidence;
+    private ParkingAreaService parkingAreaService;
 
     public ParkingEventProcessingService(ParkedVehicleService parkedVehicleService,
                                          ParkingVerificationService parkingVerificationService,
                                          FineService fineService,
-                                         @Value("${anpr.minConfidence}") Double minLicensePlateConfidence) {
+                                         @Value("${anpr.minConfidence}") Double minLicensePlateConfidence,
+                                         ParkingAreaService parkingAreaService) {
         this.parkedVehicleService = parkedVehicleService;
         this.parkingVerificationService = parkingVerificationService;
         this.fineService = fineService;
         this.minLicensePlateConfidence = minLicensePlateConfidence;
+        this.parkingAreaService = parkingAreaService;
     }
 
     public void processEvent(Event event) {
@@ -38,12 +42,17 @@ public class ParkingEventProcessingService {
             return;
         }
 
-        ParkedVehicle parkedVehicle = parkedVehicleService.find(event.getLicensePlate());
+        ParkedVehicle parkedVehicle = parkedVehicleService.find(event.getLicensePlate(), STARTED);
         if (parkedVehicle == null) {
             logger.info("Parked vehicle not found, creating new for {}", event.getLicensePlate());
             parkedVehicleService.createFromEvent(event);
             return;
         }
+        ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
+        if (parkingArea != null) {
+            boolean vehicleParked = Objects.equals(parkingArea.getId(), parkedVehicle.getParkingAreaId());
+        }
+
 
 
         Status verificationResultStatus = parkingVerificationService.verify(parkedVehicle, event);

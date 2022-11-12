@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface ParkingAreaRepository extends JpaRepository<ParkingArea, Integer> {
 
     @Query(value = "SELECT * FROM parking_area " +
-                "WHERE ST_CONTAINS(polygon, Point(:lat, :lon)) = true || ST_TOUCHES(polygon, Point(:lat, :lon)) = true", nativeQuery = true)
+                "WHERE ST_CONTAINS(polygon, Point(:lon, :lat)) = true || ST_TOUCHES(polygon, Point(:lon, :lat)) = true", nativeQuery = true)
     ParkingArea findParkingAreaByPoint(Double lat, Double lon);
 
 }

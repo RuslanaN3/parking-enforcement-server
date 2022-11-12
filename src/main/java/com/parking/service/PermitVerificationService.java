@@ -9,10 +9,10 @@ import com.parking.model.Status;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ParkingVerificationService {
+public class PermitVerificationService {
     private PermitService permitService;
 
-    public ParkingVerificationService(PermitService permitService) {
+    public PermitVerificationService(PermitService permitService) {
         this.permitService = permitService;
     }
 

@@ -7,7 +7,7 @@ import javax.persistence.*;
 public class ParkedVehicle {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String licensePlate;
@@ -23,9 +23,13 @@ public class ParkedVehicle {
 
     private Double latitude;
 
-    private Integer parkingAreaId;
+    @ManyToOne
+    private ParkingArea parkingArea;
 
     private Boolean resolved = false;
+
+    @ManyToOne
+    private RouteCycle routeCycle;
 
     public Integer getId() {
         return id;
@@ -83,12 +87,12 @@ public class ParkedVehicle {
         this.latitude = latitude;
     }
 
-    public Integer getParkingAreaId() {
-        return parkingAreaId;
+    public ParkingArea getParkingArea() {
+        return parkingArea;
     }
 
-    public void setParkingAreaId(Integer parkingAreaId) {
-        this.parkingAreaId = parkingAreaId;
+    public void setParkingArea(ParkingArea parkingArea) {
+        this.parkingArea = parkingArea;
     }
 
     public Boolean getResolved() {
@@ -97,5 +101,13 @@ public class ParkedVehicle {
 
     public void setResolved(Boolean resolved) {
         this.resolved = resolved;
+    }
+
+    public RouteCycle getRouteCycle() {
+        return routeCycle;
+    }
+
+    public void setRouteCycle(RouteCycle routeCycle) {
+        this.routeCycle = routeCycle;
     }
 }

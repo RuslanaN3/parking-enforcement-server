@@ -10,6 +10,7 @@ public class EventDto {
     private VehicleData vehicleData;
     private String cameraId;
     private String cameraPosition;
+    private Integer cycle;
 
     public Location getLocation() {
         return location;
@@ -49,5 +50,13 @@ public class EventDto {
 
     public void setCameraPosition(String cameraPosition) {
         this.cameraPosition = cameraPosition;
+    }
+
+    public Integer getCycle() {
+        return cycle;
+    }
+
+    public void setCycle(Integer cycle) {
+        this.cycle = cycle;
     }
 }

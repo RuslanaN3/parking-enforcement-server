@@ -25,6 +25,8 @@ public class Event {
 
     private String cameraPosition;
 
+    private Integer cycle;
+
     public Integer getId() {
         return id;
     }
@@ -79,5 +81,13 @@ public class Event {
 
     public void setCameraPosition(String cameraPosition) {
         this.cameraPosition = cameraPosition;
+    }
+
+    public Integer getCycle() {
+        return cycle;
+    }
+
+    public void setCycle(Integer cycle) {
+        this.cycle = cycle;
     }
 }

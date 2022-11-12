@@ -2,10 +2,8 @@ package com.parking.service;
 
 import static com.parking.model.Status.*;
 
-import com.parking.model.Event;
-import com.parking.model.ParkingArea;
-import com.parking.model.ParkedVehicle;
-import com.parking.model.Status;
+import com.parking.model.*;
+import com.parking.repository.RouteCycleRepository;
 import java.time.Duration;
 import java.time.Instant;
 import org.apache.logging.log4j.LogManager;
@@ -18,21 +16,23 @@ public class ParkingEventProcessingService {
     private static final Logger logger = LogManager.getLogger(ParkingEventProcessingService.class);
 
     private ParkedVehicleService parkedVehicleService;
-    private ParkingVerificationService parkingVerificationService;
+    private PermitVerificationService permitVerificationService;
     private FineService fineService;
     private Double minLicensePlateConfidence;
     private ParkingAreaService parkingAreaService;
+    private RouteCycleRepository routeCycleRepository;
 
     public ParkingEventProcessingService(ParkedVehicleService parkedVehicleService,
-                                         ParkingVerificationService parkingVerificationService,
+                                         PermitVerificationService permitVerificationService,
                                          FineService fineService,
                                          @Value("${anpr.minConfidence}") Double minLicensePlateConfidence,
-                                         ParkingAreaService parkingAreaService) {
+                                         ParkingAreaService parkingAreaService, RouteCycleRepository routeCycleRepository) {
         this.parkedVehicleService = parkedVehicleService;
-        this.parkingVerificationService = parkingVerificationService;
+        this.permitVerificationService = permitVerificationService;
         this.fineService = fineService;
         this.minLicensePlateConfidence = minLicensePlateConfidence;
         this.parkingAreaService = parkingAreaService;
+        this.routeCycleRepository = routeCycleRepository;
     }
 
     public void processEvent(Event event) {
@@ -42,27 +42,28 @@ public class ParkingEventProcessingService {
             return;
         }
 
+
         ParkedVehicle parkedVehicle = parkedVehicleService.find(event.getLicensePlate());
         if (parkedVehicle == null) {
             logger.info("Parked vehicle not found, creating new for {}", event.getLicensePlate());
             parkedVehicleService.save(createParkedVehicle(event));
             return;
         }
-        // for STARTED we know it is parked in this area
-        ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
 
-        if (parkingArea != null && parkingArea.getId().equals(parkedVehicle.getParkingAreaId())) {
-            Status verificationResultStatus = parkingVerificationService.verify(parkedVehicle, parkingArea);
-            if (verificationResultStatus == UNPAID && (parkedVehicle.getStatus() == STARTED || isFined(parkedVehicle, event.getTimestamp()))) {
+        ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
+        if (parkingArea != null && parkingArea.getId().equals(parkedVehicle.getParkingArea().getId())) { // handle parking area not found by different way
+            Status verificationResultStatus = permitVerificationService.verify(parkedVehicle, parkingArea);
+            if (verificationResultStatus == UNPAID) {
                 fineService.reportViolation(parkedVehicle);
             }
             parkedVehicle.setStatus(verificationResultStatus);
             parkedVehicle.setLastTimeSpotted(event.getTimestamp());
+            RouteCycle routeCycle = routeCycleRepository.findByCycleNumber(event.getCycle());
+            parkedVehicle.setRouteCycle(routeCycle);
             parkedVehicleService.save(parkedVehicle);
-        }
-        else {
-            ParkedVehicle parkedVehicle1 = createParkedVehicle(event);
-            parkedVehicleService.save(parkedVehicle1);
+        } else {
+            ParkedVehicle parkedVehicleOnOtherLocation = createParkedVehicle(event);
+            parkedVehicleService.save(parkedVehicleOnOtherLocation);
             parkedVehicleService.delete(parkedVehicle.getId());
         }
     }
@@ -83,7 +84,9 @@ public class ParkingEventProcessingService {
         parkedVehicle.setLatitude(event.getPoint().getY());
         parkedVehicle.setLongitude(event.getPoint().getX());
         ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
-        parkedVehicle.setParkingAreaId(parkingArea.getId());
+        parkedVehicle.setParkingArea(parkingArea);
+        RouteCycle routeCycle = routeCycleRepository.findByCycleNumber(event.getCycle());
+        parkedVehicle.setRouteCycle(routeCycle);
         return parkedVehicle;
     }
 }

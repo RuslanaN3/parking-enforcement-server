@@ -1,6 +1,7 @@
 package com.parking.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import java.util.List;
 import java.util.Map;
 import javax.persistence.*;
 import org.hibernate.annotations.Type;
@@ -32,6 +33,9 @@ public class ParkingArea {
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private Map<String, Object> parameters;
+
+    @OneToMany(mappedBy = "parkingArea")
+    private List<ParkedVehicle> parkedVehicles;
 
     public Integer getId() {
         return id;
@@ -96,4 +100,13 @@ public class ParkingArea {
     public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
     }
+
+    public List<ParkedVehicle> getParkedVehicles() {
+        return parkedVehicles;
+    }
+
+    public void setParkedVehicles(List<ParkedVehicle> parkedVehicles) {
+        this.parkedVehicles = parkedVehicles;
+    }
+
 }

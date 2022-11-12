@@ -4,6 +4,8 @@ import com.parking.dto.EventDto;
 import com.parking.model.ParkingArea;
 import com.parking.repository.ParkingAreaRepository;
 import com.parking.service.EventService;
+import java.util.Comparator;
+import java.util.List;
 import javax.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,15 @@ public class EventController {
             eventService.handleEvent(eventDto);
         }
         return eventDto;
+    }
+
+    @PostMapping("multiple")
+    public EventDto handleEvent(@Valid @RequestBody List<EventDto> eventDtos, BindingResult bindingResult) {
+        if (!bindingResult.hasErrors()) {
+            eventDtos.sort(Comparator.comparing(EventDto::getCycle));
+            eventDtos.forEach(eventDto -> eventService.handleEvent(eventDto));
+        }
+        return eventDtos.get(0);
     }
 
     @GetMapping("/{lat}/{lon}")

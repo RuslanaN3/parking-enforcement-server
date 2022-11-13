@@ -6,6 +6,7 @@ import com.parking.model.*;
 import com.parking.repository.RouteCycleRepository;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,28 +21,29 @@ public class ParkingEventProcessingService {
     private FineService fineService;
     private Double minLicensePlateConfidence;
     private ParkingAreaService parkingAreaService;
-    private RouteCycleRepository routeCycleRepository;
+    private RouteCycleService routeCycleService;
 
     public ParkingEventProcessingService(ParkedVehicleService parkedVehicleService,
                                          PermitVerificationService permitVerificationService,
                                          FineService fineService,
                                          @Value("${anpr.minConfidence}") Double minLicensePlateConfidence,
-                                         ParkingAreaService parkingAreaService, RouteCycleRepository routeCycleRepository) {
+                                         ParkingAreaService parkingAreaService,
+                                         RouteCycleService routeCycleService) {
         this.parkedVehicleService = parkedVehicleService;
         this.permitVerificationService = permitVerificationService;
         this.fineService = fineService;
         this.minLicensePlateConfidence = minLicensePlateConfidence;
         this.parkingAreaService = parkingAreaService;
-        this.routeCycleRepository = routeCycleRepository;
+        this.routeCycleService = routeCycleService;
     }
 
     public void processEvent(Event event) {
+        routeCycleService.createCycleIfNotPresent(event.getCycle());
         if (event.getLicencePlateConfidence() < minLicensePlateConfidence) {
             logger.info("Low confidence value {} for license plate: {} at ", event.getLicencePlateConfidence(),
                 event.getLicensePlate());
             return;
         }
-
 
         ParkedVehicle parkedVehicle = parkedVehicleService.find(event.getLicensePlate());
         if (parkedVehicle == null) {
@@ -49,22 +51,30 @@ public class ParkingEventProcessingService {
             parkedVehicleService.save(createParkedVehicle(event));
             return;
         }
+        processParkedVehicleEvent(parkedVehicle, event);
+    }
 
-        ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
-        if (parkingArea != null && parkingArea.getId().equals(parkedVehicle.getParkingArea().getId())) { // handle parking area not found by different way
-            Status verificationResultStatus = permitVerificationService.verify(parkedVehicle, parkingArea);
-            if (verificationResultStatus == UNPAID) {
-                fineService.reportViolation(parkedVehicle);
+    private void processParkedVehicleEvent(ParkedVehicle parkedVehicle, Event event) {
+        if ((parkedVehicle.getStatus() == STARTED &&
+            isBetweenDates(parkedVehicle.getFirstTimeSpotted(), event.getTimestamp(), Duration.ofMinutes(15)))
+            || parkedVehicle.getStatus() == PAID) {
+            ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
+            if (parkingArea != null && parkingArea.getId()
+                .equals(parkedVehicle.getParkingArea().getId())) { // handle parking area not found by different way
+                Status verificationResultStatus = permitVerificationService.verify(parkedVehicle, parkingArea);
+                if (verificationResultStatus == UNPAID) {
+                    fineService.reportViolation(parkedVehicle);
+                }
+                parkedVehicle.setStatus(verificationResultStatus);
+                parkedVehicle.setLastTimeSpotted(event.getTimestamp());
+                RouteCycle routeCycle = routeCycleService.findByCycleNumber(event.getCycle());
+                parkedVehicle.setRouteCycle(routeCycle);
+                parkedVehicleService.save(parkedVehicle);
+            } else {
+                ParkedVehicle parkedVehicleOnOtherLocation = createParkedVehicle(event);
+                parkedVehicleService.save(parkedVehicleOnOtherLocation);
+                parkedVehicleService.delete(parkedVehicle.getId());
             }
-            parkedVehicle.setStatus(verificationResultStatus);
-            parkedVehicle.setLastTimeSpotted(event.getTimestamp());
-            RouteCycle routeCycle = routeCycleRepository.findByCycleNumber(event.getCycle());
-            parkedVehicle.setRouteCycle(routeCycle);
-            parkedVehicleService.save(parkedVehicle);
-        } else {
-            ParkedVehicle parkedVehicleOnOtherLocation = createParkedVehicle(event);
-            parkedVehicleService.save(parkedVehicleOnOtherLocation);
-            parkedVehicleService.delete(parkedVehicle.getId());
         }
     }
 
@@ -77,6 +87,10 @@ public class ParkingEventProcessingService {
         return secondDate.isAfter(firstDate.plus(Duration.ofHours(24)));
     }
 
+    private boolean isBetweenDates(Instant firstDate, Instant secondDate, Duration duration) {
+        return secondDate.isAfter(firstDate.plus(duration));
+    }
+
     private ParkedVehicle createParkedVehicle(Event event) {
         ParkedVehicle parkedVehicle = new ParkedVehicle();
         parkedVehicle.setFirstTimeSpotted(event.getTimestamp());
@@ -85,7 +99,7 @@ public class ParkingEventProcessingService {
         parkedVehicle.setLongitude(event.getPoint().getX());
         ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
         parkedVehicle.setParkingArea(parkingArea);
-        RouteCycle routeCycle = routeCycleRepository.findByCycleNumber(event.getCycle());
+        RouteCycle routeCycle = routeCycleService.findByCycleNumber(event.getCycle());
         parkedVehicle.setRouteCycle(routeCycle);
         return parkedVehicle;
     }

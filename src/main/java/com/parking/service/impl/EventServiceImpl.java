@@ -6,6 +6,7 @@ import com.parking.dto.EventDto;
 import com.parking.model.ParkedVehicle;
 import com.parking.repository.*;
 import com.parking.service.ParkingEventProcessingService;
+import com.parking.service.RouteCycleService;
 import com.parking.util.GeometryUtils;
 import com.parking.service.EventService;
 import java.util.List;
@@ -21,16 +22,13 @@ public class EventServiceImpl implements EventService {
 
     private ParkingEventProcessingService parkingEventProcessingService;
     private EventRepository eventRepository;
-    private RouteCycleRepository routeCycleRepository;
     private ParkedVehicleRepository parkedVehicleRepository;
 
     public EventServiceImpl(ParkingEventProcessingService parkingEventProcessingService,
                             EventRepository eventRepository,
-                            RouteCycleRepository routeCycleRepository,
                             ParkedVehicleRepository parkedVehicleRepository) {
         this.parkingEventProcessingService = parkingEventProcessingService;
         this.eventRepository = eventRepository;
-        this.routeCycleRepository = routeCycleRepository;
         this.parkedVehicleRepository = parkedVehicleRepository;
     }
 
@@ -42,16 +40,14 @@ public class EventServiceImpl implements EventService {
             eventDto.getTimestamp());
         Event event = createEvent(eventDto);
         saveEvent(event);
-        if (routeCycleRepository.findByCycleNumber(event.getCycle()) == null) {
-            clearLeftVehicles();
-            RouteCycle routeCycle = new RouteCycle();
-            routeCycle.setCycleNumber(event.getCycle());
-            routeCycle.setStartedAt("time");
-            routeCycleRepository.save(routeCycle);
-        }
         parkingEventProcessingService.processEvent(event);
         logger.info("Finished event processing for license plate : {}",
             eventDto.getVehicleData().getLicensePlate());
+    }
+
+    @Override
+    public List<Event> getEvents() {
+        return eventRepository.findAll();
     }
 
     private void saveEvent(Event event) {
@@ -74,16 +70,5 @@ public class EventServiceImpl implements EventService {
 
     public List<Event> findAll() {
         return eventRepository.findAll();
-    }
-
-    private void clearLeftVehicles() {
-        Integer currentCycleNumber = routeCycleRepository.findCurrentCycle();
-        if (currentCycleNumber != null) {
-            List<ParkedVehicle> parkedVehicles = parkedVehicleRepository.findAll();
-            parkedVehicles.stream()
-                .filter(parkedVehicle -> parkedVehicle.getRouteCycle().getCycleNumber() < currentCycleNumber)
-                .forEach(parkedVehicle -> parkedVehicle.setResolved(true));
-            parkedVehicleRepository.saveAll(parkedVehicles);
-        }
     }
 }

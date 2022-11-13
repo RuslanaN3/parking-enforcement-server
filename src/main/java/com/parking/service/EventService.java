@@ -8,4 +8,6 @@ public interface EventService {
     List<Event> findAll();
 
     void handleEvent(EventDto eventDto);
+
+    List<Event> getEvents();
 }

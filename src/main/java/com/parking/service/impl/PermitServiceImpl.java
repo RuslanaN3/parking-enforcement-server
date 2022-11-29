@@ -12,19 +12,25 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class PermitServiceImpl implements PermitService {
+    private static final String API_KEY = "X-API-KEY";
+
     private RestTemplate restTemplate;
     private String permitServiceUrl;
+    private String permitServiceApiKey;
 
-    public PermitServiceImpl(RestTemplate restTemplate, @Value("${permit.service.url}") String permitServiceUrl) {
+    public PermitServiceImpl(RestTemplate restTemplate,
+                             @Value("${permit.service.url}") String permitServiceUrl,
+                             @Value("${permit.service.apiKey}") String permitServiceApiKey) {
         this.restTemplate = restTemplate;
         this.permitServiceUrl = permitServiceUrl;
+        this.permitServiceApiKey = permitServiceApiKey;
     }
 
     @Override
     public PermitResponse checkPermit(String licensePlate, Address parkingAreaAddress) {
         PermitRequest permitRequest = createRequest(licensePlate, parkingAreaAddress);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("apiKey", "token");
+        headers.set(API_KEY, permitServiceApiKey);
         HttpEntity<PermitRequest> request = new HttpEntity<>(permitRequest, headers);
 
 

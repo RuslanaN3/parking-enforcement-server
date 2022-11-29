@@ -11,13 +11,17 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class FineServiceImpl implements FineService {
+    private static final String API_KEY = "X-API-KEY";
 
     private RestTemplate restTemplate;
-    private String fineGenerationServiceUrl;
+    private String fineServiceUrl;
+    private String fineServiceApiKey;
 
-    public FineServiceImpl(RestTemplate restTemplate, @Value("${fine.service.url}") String fineGenerationServiceUrl) {
+    public FineServiceImpl(RestTemplate restTemplate, @Value("${fine.service.url}") String fineServiceUrl,
+                           @Value("${fine.service.apiKey}") String fineServiceApiKey) {
         this.restTemplate = restTemplate;
-        this.fineGenerationServiceUrl = fineGenerationServiceUrl;
+        this.fineServiceUrl = fineServiceUrl;
+        this.fineServiceApiKey = fineServiceApiKey;
     }
 
     @Override
@@ -30,7 +34,7 @@ public class FineServiceImpl implements FineService {
 
     private void performCreateFineRequest(CreateFineRequest createFineRequest) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("apiKey", "token");
+        headers.set(API_KEY, fineServiceApiKey);
 
         HttpEntity<CreateFineRequest> request = new HttpEntity<>(createFineRequest, headers);
         //restTemplate.exchange(fineGenerationServiceUrl, HttpMethod.POST, request, Map.class).getBody();

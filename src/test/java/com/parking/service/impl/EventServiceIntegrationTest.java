@@ -11,7 +11,7 @@ import com.parking.dto.EventDto;
 import com.parking.model.Event;
 import com.parking.dto.PermitResponse;
 import com.parking.model.ParkedVehicle;
-import com.parking.model.Status;
+import com.parking.dto.Status;
 import com.parking.repository.EventRepository;
 import com.parking.repository.ParkedVehicleRepository;
 import com.parking.service.EventService;

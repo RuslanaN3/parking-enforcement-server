@@ -1,10 +1,16 @@
 package com.parking.service.impl;
 
-import com.parking.model.ParkedVehicle;
-import com.parking.model.Status;
+import static com.parking.dto.Status.*;
+import static com.parking.util.TimeUtils.isBetweenDates;
+
+import com.parking.dto.Status;
+import com.parking.dto.VerificationResult;
+import com.parking.model.*;
 import com.parking.repository.ParkedVehicleRepository;
-import com.parking.repository.ParkingAreaRepository;
 import com.parking.service.ParkedVehicleService;
+import com.parking.service.ParkingAreaService;
+import com.parking.service.PermitVerificationService;
+import com.parking.service.RouteCycleService;
 import java.time.Duration;
 import java.time.Instant;
 import org.apache.logging.log4j.LogManager;
@@ -16,10 +22,18 @@ public class ParkedVehicleServiceImpl implements ParkedVehicleService {
     private static final Logger logger = LogManager.getLogger(ParkedVehicleServiceImpl.class);
 
     private ParkedVehicleRepository parkedVehicleRepository;
-    private ParkingAreaRepository parkingAreaRepository;
+    private ParkingAreaService parkingAreaService;
+    private PermitVerificationService permitVerificationService;
+    private RouteCycleService routeCycleService;
 
-    public ParkedVehicleServiceImpl(ParkedVehicleRepository parkedVehicleRepository) {
+    public ParkedVehicleServiceImpl(ParkedVehicleRepository parkedVehicleRepository,
+                                    ParkingAreaService parkingAreaService,
+                                    PermitVerificationService permitVerificationService,
+                                    RouteCycleService routeCycleService) {
         this.parkedVehicleRepository = parkedVehicleRepository;
+        this.parkingAreaService = parkingAreaService;
+        this.permitVerificationService = permitVerificationService;
+        this.routeCycleService = routeCycleService;
     }
 
     public boolean existsParkedVehicle(String licensePlate) {
@@ -38,31 +52,54 @@ public class ParkedVehicleServiceImpl implements ParkedVehicleService {
         parkedVehicleRepository.save(parkedVehicle);
     }
 
-    //@Scheduled(fixedRate = 15, timeUnit = TimeUnit.MINUTES)
-    //public void deactivatePaidParkedVehicles() {
-    //    logger.info("Paid parked vehicle deactivation started");
-    //    List<ParkedVehicle> parkedVehicles = parkedVehicleRepository.findAllByStatus(Status.PAID);
-    //    parkedVehicles.stream()
-    //        .filter(parkedVehicle -> isHourBetweenDates(parkedVehicle.getLastTimeSpotted(), Instant.now()))
-    //        .forEach(parkedVehicle -> parkedVehicle.setResolved(true));
-    //    parkedVehicleRepository.saveAll(parkedVehicles);
-    //}
-    //
-    //@Scheduled(fixedRate = 24, timeUnit = TimeUnit.HOURS)
-    //public void deactivateUnpaidParkedVehicles() {
-    //    logger.info("Unpaid parked vehicle deactivation started");
-    //    List<ParkedVehicle> parkedVehicles = parkedVehicleRepository.findAllByStatus(Status.UNPAID);
-    //    parkedVehicles.stream()
-    //        .filter(parkedVehicle -> isHourBetweenDates(parkedVehicle.getLastTimeSpotted(), Instant.now()))
-    //        .forEach(parkedVehicle -> parkedVehicle.setResolved(true));
-    //    parkedVehicleRepository.saveAll(parkedVehicles);
-    //}
-
-    private boolean isHourBetweenDates(Instant firstDate, Instant secondDate) {
-        return secondDate.isAfter(firstDate.plus(Duration.ofHours(1)));
-    }
-
     public void delete(Integer parkedVehicleId) {
         parkedVehicleRepository.deleteById(parkedVehicleId);
+    }
+
+
+    public void processParkedVehicle(Event event) {
+        ParkedVehicle parkedVehicle = parkedVehicleRepository.findByLicensePlate(event.getLicensePlate());
+        if (parkedVehicle == null) {
+            logger.info("Parked vehicle not found, creating new for {}", event.getLicensePlate());
+            createParkedVehicle(event);
+            return;
+        }
+
+        if (isStatusStarted(parkedVehicle, event.getTimestamp()) || parkedVehicle.getStatus().equals(PAID)) {
+            processExistingParkedVehicle(parkedVehicle, event);
+        }
+    }
+
+    private void processExistingParkedVehicle(ParkedVehicle parkedVehicle, Event event) {
+        ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
+        if (!parkedVehicle.getParkingArea().getId().equals(parkingArea.getId())) {
+            parkedVehicleRepository.delete(parkedVehicle);
+            createParkedVehicle(event);
+            return;
+        }
+        VerificationResult verificationResult = permitVerificationService.verify(parkedVehicle);
+        parkedVehicle.setStatus(verificationResult.getStatus());
+        parkedVehicle.setLastTimeSpotted(event.getTimestamp());
+        RouteCycle routeCycle = routeCycleService.findByCycleNumber(event.getCycle());
+        parkedVehicle.setRouteCycle(routeCycle);
+        parkedVehicleRepository.save(parkedVehicle);
+    }
+
+    private ParkedVehicle createParkedVehicle(Event event) {
+        ParkedVehicle parkedVehicle = new ParkedVehicle();
+        parkedVehicle.setFirstTimeSpotted(event.getTimestamp());
+        parkedVehicle.setLicensePlate(event.getLicensePlate());
+        parkedVehicle.setLatitude(event.getPoint().getY());
+        parkedVehicle.setLongitude(event.getPoint().getX());
+        ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
+        parkedVehicle.setParkingArea(parkingArea);
+        RouteCycle routeCycle = routeCycleService.findByCycleNumber(event.getCycle());
+        parkedVehicle.setRouteCycle(routeCycle);
+        return parkedVehicleRepository.save(parkedVehicle);
+    }
+
+    private boolean isStatusStarted(ParkedVehicle parkedVehicle, Instant timestamp) {
+        return parkedVehicle.getStatus() == STARTED &&
+            isBetweenDates(parkedVehicle.getFirstTimeSpotted(), timestamp, Duration.ofMinutes(15));
     }
 }

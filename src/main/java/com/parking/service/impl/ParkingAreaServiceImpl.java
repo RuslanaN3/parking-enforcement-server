@@ -21,6 +21,6 @@ public class ParkingAreaServiceImpl implements ParkingAreaService {
 
     @Override
     public ParkingArea findParkingAreaByLocation(Point point) {
-        return parkingAreaRepository.findParkingAreaByPoint(point.getY(), point.getX());
+        return parkingAreaRepository.findParkingAreaByPoint(point.getY(), point.getX()).orElseThrow();
     }
 }

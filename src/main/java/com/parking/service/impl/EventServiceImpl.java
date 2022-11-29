@@ -1,9 +1,8 @@
 package com.parking.service.impl;
 
-import com.parking.model.RouteCycle;
 import com.parking.model.Event;
 import com.parking.dto.EventDto;
-import com.parking.model.ParkedVehicle;
+import com.parking.model.RouteCycle;
 import com.parking.repository.*;
 import com.parking.service.ParkingEventProcessingService;
 import com.parking.service.RouteCycleService;
@@ -21,15 +20,15 @@ public class EventServiceImpl implements EventService {
     private static final Logger logger = LogManager.getLogger(EventServiceImpl.class);
 
     private ParkingEventProcessingService parkingEventProcessingService;
+    private RouteCycleService routeCycleService;
     private EventRepository eventRepository;
-    private ParkedVehicleRepository parkedVehicleRepository;
 
     public EventServiceImpl(ParkingEventProcessingService parkingEventProcessingService,
-                            EventRepository eventRepository,
-                            ParkedVehicleRepository parkedVehicleRepository) {
+                            RouteCycleService routeCycleService,
+                            EventRepository eventRepository) {
         this.parkingEventProcessingService = parkingEventProcessingService;
+        this.routeCycleService = routeCycleService;
         this.eventRepository = eventRepository;
-        this.parkedVehicleRepository = parkedVehicleRepository;
     }
 
     @Override
@@ -40,6 +39,7 @@ public class EventServiceImpl implements EventService {
             eventDto.getTimestamp());
         Event event = createEvent(eventDto);
         saveEvent(event);
+        routeCycleService.createCycleIfNotPresent(event.getCycle());
         parkingEventProcessingService.processEvent(event);
         logger.info("Finished event processing for license plate : {}",
             eventDto.getVehicleData().getLicensePlate());

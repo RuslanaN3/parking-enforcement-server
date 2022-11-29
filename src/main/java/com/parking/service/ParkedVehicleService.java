@@ -1,7 +1,8 @@
 package com.parking.service;
 
+import com.parking.model.Event;
 import com.parking.model.ParkedVehicle;
-import com.parking.model.Status;
+import com.parking.dto.Status;
 
 public interface ParkedVehicleService {
     boolean existsParkedVehicle(String licensePlate);
@@ -13,4 +14,6 @@ public interface ParkedVehicleService {
     void save(ParkedVehicle parkedVehicle);
 
     void delete(Integer parkedVehicleId);
+
+    void processParkedVehicle(Event event);
 }

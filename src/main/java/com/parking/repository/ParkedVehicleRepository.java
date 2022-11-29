@@ -1,6 +1,6 @@
 package com.parking.repository;
 
-import com.parking.model.Status;
+import com.parking.dto.Status;
 import com.parking.model.ParkedVehicle;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

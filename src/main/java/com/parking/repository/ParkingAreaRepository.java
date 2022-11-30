@@ -11,6 +11,6 @@ public interface ParkingAreaRepository extends JpaRepository<ParkingArea, Intege
 
     @Query(value = "SELECT * FROM parking_area " +
                 "WHERE ST_CONTAINS(polygon, Point(:lon, :lat)) = true || ST_TOUCHES(polygon, Point(:lon, :lat)) = true", nativeQuery = true)
-    Optional<ParkingArea> findParkingAreaByPoint(Double lat, Double lon);
+    ParkingArea findParkingAreaByPoint(Double lat, Double lon);
 
 }

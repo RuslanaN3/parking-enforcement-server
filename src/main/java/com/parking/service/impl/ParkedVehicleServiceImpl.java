@@ -71,7 +71,7 @@ public class ParkedVehicleServiceImpl implements ParkedVehicleService {
     }
 
     private void processExistingParkedVehicle(ParkedVehicle parkedVehicle, Event event) {
-        ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
+        ParkingArea parkingArea = parkingAreaService.getParkingAreaByLocation(event.getPoint());
         if (!parkedVehicle.getParkingArea().getId().equals(parkingArea.getId())) {
             parkedVehicleRepository.delete(parkedVehicle);
             createParkedVehicle(event);
@@ -91,7 +91,7 @@ public class ParkedVehicleServiceImpl implements ParkedVehicleService {
         parkedVehicle.setLicensePlate(event.getLicensePlate());
         parkedVehicle.setLatitude(event.getPoint().getY());
         parkedVehicle.setLongitude(event.getPoint().getX());
-        ParkingArea parkingArea = parkingAreaService.findParkingAreaByLocation(event.getPoint());
+        ParkingArea parkingArea = parkingAreaService.getParkingAreaByLocation(event.getPoint());
         parkedVehicle.setParkingArea(parkingArea);
         RouteCycle routeCycle = routeCycleService.findByCycleNumber(event.getCycle());
         parkedVehicle.setRouteCycle(routeCycle);

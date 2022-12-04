@@ -12,7 +12,7 @@ public interface EventService {
 
     List<EventDto> getEventsByLicensePlate(String licenseNumber);
 
-    List<EventDto> getEventsFiltered(EventFilter eventFilter);
+    List<EventDto> searchEvents(EventFilter eventFilter);
 
     List<EventDto> getEventsBetweenDates(LocalDateTime from, LocalDateTime to);
 

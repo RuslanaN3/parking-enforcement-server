@@ -45,7 +45,7 @@ public class EventController {
 
     @PostMapping("/search")
     public List<EventDto> search(@RequestBody EventFilter eventFilter) {
-        return eventService.getEventsFiltered(eventFilter);
+        return eventService.searchEvents(eventFilter);
     }
 
     @GetMapping("/timestamp/{from}/to/{to}")

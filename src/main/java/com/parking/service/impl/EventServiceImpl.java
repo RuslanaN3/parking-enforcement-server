@@ -88,7 +88,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> getEventsFiltered(EventFilter eventFilter) {
+    public List<EventDto> searchEvents(EventFilter eventFilter) {
         Event event = new Event();
         event.setCameraId(eventFilter.getCameraId());
         event.setCycle(eventFilter.getCycle());

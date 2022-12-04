@@ -1,43 +1,15 @@
-package com.parking.model;
+package com.parking.dto;
 
-import com.parking.dto.Status;
+
 import java.time.Instant;
-import javax.persistence.*;
 
-@Entity
-public class ParkedVehicle {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class ParkedVehicleDto {
     private String licensePlate;
-
     private Instant firstTimeSpotted;
-
     private Instant lastTimeSpotted;
-
-    @Enumerated(EnumType.STRING)
-    private Status status = Status.STARTED;
-
+    private Status status;
     private Double longitude;
-
     private Double latitude;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private ParkingArea parkingArea;
-
-    private Boolean resolved = false;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private RouteCycle routeCycle;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getLicensePlate() {
         return licensePlate;
@@ -85,29 +57,5 @@ public class ParkedVehicle {
 
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
-    }
-
-    public ParkingArea getParkingArea() {
-        return parkingArea;
-    }
-
-    public void setParkingArea(ParkingArea parkingArea) {
-        this.parkingArea = parkingArea;
-    }
-
-    public Boolean getResolved() {
-        return resolved;
-    }
-
-    public void setResolved(Boolean resolved) {
-        this.resolved = resolved;
-    }
-
-    public RouteCycle getRouteCycle() {
-        return routeCycle;
-    }
-
-    public void setRouteCycle(RouteCycle routeCycle) {
-        this.routeCycle = routeCycle;
     }
 }

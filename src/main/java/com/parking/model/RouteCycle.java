@@ -7,7 +7,7 @@ import javax.persistence.*;
 public class RouteCycle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private Integer cycleNumber;
 
@@ -16,11 +16,11 @@ public class RouteCycle {
     @OneToMany(mappedBy = "routeCycle", cascade = CascadeType.ALL)
     private List<ParkedVehicle> parkedVehicles;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -2,6 +2,7 @@ package com.parking.service.impl;
 
 import com.parking.dto.ParkingAreaDto;
 import com.parking.model.ParkingArea;
+import com.parking.model.ParkingAreaType;
 import com.parking.repository.ParkingAreaRepository;
 import com.parking.service.ParkingAreaService;
 import java.util.List;
@@ -26,6 +27,12 @@ public class ParkingAreaServiceImpl implements ParkingAreaService {
     @Override
     public List<ParkingAreaDto> getParkingAreas() {
         return parkingAreaRepository.findAll()
+            .stream().map(this::convertToParkingAreaDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ParkingAreaDto> getParkingAreasByType(ParkingAreaType parkingAreaType) {
+        return parkingAreaRepository.findParkingAreasByAreaType(parkingAreaType)
             .stream().map(this::convertToParkingAreaDto).collect(Collectors.toList());
     }
 

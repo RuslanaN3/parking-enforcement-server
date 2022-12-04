@@ -1,6 +1,8 @@
 package com.parking.repository;
 
 import com.parking.model.ParkingArea;
+import com.parking.model.ParkingAreaType;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,4 +15,5 @@ public interface ParkingAreaRepository extends JpaRepository<ParkingArea, Intege
                 "WHERE ST_CONTAINS(polygon, Point(:lon, :lat)) = true || ST_TOUCHES(polygon, Point(:lon, :lat)) = true", nativeQuery = true)
     ParkingArea findParkingAreaByPoint(Double lat, Double lon);
 
+    List<ParkingArea> findParkingAreasByAreaType(ParkingAreaType parkingAreaType);
 }

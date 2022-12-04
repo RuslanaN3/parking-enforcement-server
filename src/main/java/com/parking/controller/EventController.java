@@ -1,11 +1,13 @@
 package com.parking.controller;
 
 import com.parking.dto.EventDto;
-import com.parking.model.Event;
+import com.parking.dto.EventFilter;
 import com.parking.service.EventService;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import javax.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +29,29 @@ public class EventController {
     }
 
     @GetMapping
-    public List<Event> getEvents() {
+    public List<EventDto> getEvents() {
         return eventService.getEvents();
+    }
+
+    @GetMapping("/{id}")
+    public EventDto getEvent(@PathVariable Long id) {
+        return eventService.getEvent(id);
+    }
+
+    @GetMapping("/vehicle/{licensePlate}")
+    public List<EventDto> getEventsByLicensePlate(@PathVariable String licensePlate) {
+        return eventService.getEventsByLicensePlate(licensePlate);
+    }
+
+    @PostMapping("/search")
+    public List<EventDto> search(@RequestBody EventFilter eventFilter) {
+        return eventService.getEventsFiltered(eventFilter);
+    }
+
+    @GetMapping("/timestamp/{from}/to/{to}")
+    public List<EventDto> getEventsBetweenDates(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+                                                @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+        return eventService.getEventsBetweenDates(from, to);
     }
 
     @PostMapping("multiple")

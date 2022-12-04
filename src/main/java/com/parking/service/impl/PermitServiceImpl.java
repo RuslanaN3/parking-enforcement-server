@@ -7,6 +7,7 @@ import com.parking.service.PermitService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,14 +33,7 @@ public class PermitServiceImpl implements PermitService {
         HttpHeaders headers = new HttpHeaders();
         headers.set(API_KEY, permitServiceApiKey);
         HttpEntity<PermitRequest> request = new HttpEntity<>(permitRequest, headers);
-
-
-        //PermitResponse permitResponse =
-        //    restTemplate.exchange(permitServiceUrl, HttpMethod.POST, request, PermitResponse.class).getBody();
-        //permitResponse.setHasPermit(false);
-        PermitResponse permitResponse = new PermitResponse();
-        permitResponse.setHasPermit(false);
-
+        PermitResponse permitResponse = restTemplate.exchange(permitServiceUrl, HttpMethod.POST, request, PermitResponse.class).getBody();
         return permitResponse;
     }
 
@@ -50,3 +44,6 @@ public class PermitServiceImpl implements PermitService {
         return permitRequest;
     }
 }
+
+
+
